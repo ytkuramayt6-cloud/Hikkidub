@@ -1,0 +1,3 @@
+# SQLite по умолчанию в settings; psycopg2-binary — для конфигурации с PostgreSQL.
+Django>=5.2.9
+psycopg2-binary>=2.9.9

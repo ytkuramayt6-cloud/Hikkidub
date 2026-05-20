@@ -1,0 +1,546 @@
+{% extends 'hikkiinfo/base.html' %}
+
+{% block title %}Видео плеер - HikkiDub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .player-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .video-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        background: #000;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px var(--shadow);
+        margin-bottom: 2rem;
+    }
+
+    .video-wrapper video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .video-info {
+        background: var(--bg-card);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px var(--shadow);
+        margin-bottom: 2rem;
+        transition: background 0.3s ease;
+    }
+
+    .video-title {
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .video-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+    }
+
+    .video-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .video-description {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        margin-top: 1rem;
+        transition: color 0.3s ease;
+    }
+
+    .controls-panel {
+        background: var(--bg-card);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px var(--shadow);
+        margin-bottom: 2rem;
+        transition: background 0.3s ease;
+    }
+
+    .controls-panel h3 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        transition: color 0.3s ease;
+    }
+
+    .quality-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .quality-btn {
+        padding: 0.7rem 1.5rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border: 2px solid transparent;
+        border-radius: 10px;
+        color: var(--text-primary);
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    [data-theme="dark"] .quality-btn {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    }
+
+    .quality-btn:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px var(--shadow-hover);
+    }
+
+    .quality-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    .episode-list {
+        background: var(--bg-card);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px var(--shadow);
+        transition: background 0.3s ease;
+    }
+
+    .episode-list h3 {
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .episodes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .episode-item {
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        text-decoration: none;
+        color: var(--text-primary);
+        display: block;
+    }
+
+    [data-theme="dark"] .episode-item {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    }
+
+    .episode-item:hover {
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px var(--shadow-hover);
+    }
+
+    .episode-item.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    .episode-number {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.3rem;
+    }
+
+    .episode-title {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    .custom-video-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        padding: 1rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .video-wrapper:hover .custom-video-controls {
+        opacity: 1;
+    }
+
+    .control-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s ease;
+    }
+
+    .control-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .progress-bar {
+        flex: 1;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 5px;
+        width: 0%;
+        transition: width 0.1s linear;
+    }
+
+    .volume-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .volume-slider {
+        width: 100px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .volume-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 5px;
+        width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        .player-container {
+            padding: 1rem;
+        }
+
+        .video-title {
+            font-size: 1.5rem;
+        }
+
+        .episodes-grid {
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        }
+
+        .quality-selector {
+            gap: 0.5rem;
+        }
+
+        .quality-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.5rem;
+        background: var(--bg-card);
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .back-button:hover {
+        border-color: #667eea;
+        transform: translateX(-5px);
+        box-shadow: 0 5px 15px var(--shadow-hover);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="player-container">
+    <a href="{% url 'index' %}" class="back-button">
+        ← Назад
+    </a>
+
+    <div class="video-info">
+        <h1 class="video-title">{{ video_title|default:"Видео" }}</h1>
+        <div class="video-meta">
+            <span>📺 Эпизод {{ episode_number|default:"1" }}</span>
+            <span>⏱️ {{ duration|default:"24:00" }}</span>
+            <span>📅 {{ release_date|default:"2024" }}</span>
+        </div>
+        {% if description %}
+        <div class="video-description">
+            {{ description }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="video-wrapper">
+        <video id="videoPlayer" controls preload="metadata" poster="{{ poster_url|default:'' }}">
+            <source src="{{ video_url|default:'#' }}" type="video/mp4">
+            Ваш браузер не поддерживает воспроизведение видео.
+        </video>
+        <div class="custom-video-controls" id="customControls">
+            <button class="control-btn" id="playPauseBtn">⏸️</button>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="volume-control">
+                <button class="control-btn" id="muteBtn">🔊</button>
+                <div class="volume-slider" id="volumeSlider">
+                    <div class="volume-fill" id="volumeFill"></div>
+                </div>
+            </div>
+            <button class="control-btn" id="fullscreenBtn">⛶</button>
+        </div>
+    </div>
+
+    {% if qualities %}
+    <div class="controls-panel">
+        <h3>Качество видео</h3>
+        <div class="quality-selector">
+            {% for quality in qualities %}
+            <button class="quality-btn {% if quality.active %}active{% endif %}" 
+                    data-quality="{{ quality.value }}" 
+                    data-url="{{ quality.url }}">
+                {{ quality.label }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if episodes %}
+    <div class="episode-list">
+        <h3>Список эпизодов</h3>
+        <div class="episodes-grid">
+            {% for episode in episodes %}
+            <a href="?episode={{ episode.number }}" 
+               class="episode-item {% if episode.active %}active{% endif %}">
+                <div class="episode-number">{{ episode.number }}</div>
+                {% if episode.title %}
+                <div class="episode-title">{{ episode.title }}</div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('videoPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const muteBtn = document.getElementById('muteBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeFill = document.getElementById('volumeFill');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const customControls = document.getElementById('customControls');
+
+        // Play/Pause
+        if (playPauseBtn) {
+            playPauseBtn.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    playPauseBtn.textContent = '⏸️';
+                } else {
+                    video.pause();
+                    playPauseBtn.textContent = '▶️';
+                }
+            });
+        }
+
+        // Обновление прогресса
+        if (video) {
+            video.addEventListener('timeupdate', function() {
+                const progress = (video.currentTime / video.duration) * 100;
+                if (progressFill) {
+                    progressFill.style.width = progress + '%';
+                }
+            });
+
+            // Клик по прогресс-бару
+            if (progressBar) {
+                progressBar.addEventListener('click', function(e) {
+                    const rect = progressBar.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    video.currentTime = pos * video.duration;
+                });
+            }
+
+            // Play/Pause при клике на видео
+            video.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    if (playPauseBtn) playPauseBtn.textContent = '⏸️';
+                } else {
+                    video.pause();
+                    if (playPauseBtn) playPauseBtn.textContent = '▶️';
+                }
+            });
+
+            // Обновление иконки play/pause
+            video.addEventListener('play', function() {
+                if (playPauseBtn) playPauseBtn.textContent = '⏸️';
+            });
+
+            video.addEventListener('pause', function() {
+                if (playPauseBtn) playPauseBtn.textContent = '▶️';
+            });
+        }
+
+        // Громкость
+        if (volumeSlider) {
+            volumeSlider.addEventListener('click', function(e) {
+                const rect = volumeSlider.getBoundingClientRect();
+                const volume = (e.clientX - rect.left) / rect.width;
+                video.volume = Math.max(0, Math.min(1, volume));
+                if (volumeFill) {
+                    volumeFill.style.width = (volume * 100) + '%';
+                }
+                updateMuteButton();
+            });
+        }
+
+        function updateMuteButton() {
+            if (muteBtn && video) {
+                if (video.muted || video.volume === 0) {
+                    muteBtn.textContent = '🔇';
+                } else {
+                    muteBtn.textContent = '🔊';
+                }
+            }
+        }
+
+        if (muteBtn) {
+            muteBtn.addEventListener('click', function() {
+                if (video) {
+                    video.muted = !video.muted;
+                    updateMuteButton();
+                }
+            });
+        }
+
+        // Полноэкранный режим
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', function() {
+                const wrapper = document.querySelector('.video-wrapper');
+                if (!document.fullscreenElement) {
+                    if (wrapper.requestFullscreen) {
+                        wrapper.requestFullscreen();
+                    } else if (wrapper.webkitRequestFullscreen) {
+                        wrapper.webkitRequestFullscreen();
+                    } else if (wrapper.msRequestFullscreen) {
+                        wrapper.msRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                }
+            });
+        }
+
+        // Переключение качества
+        const qualityButtons = document.querySelectorAll('.quality-btn');
+        qualityButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                if (url && video) {
+                    video.src = url;
+                    video.load();
+                    
+                    // Обновляем активную кнопку
+                    qualityButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Инициализация громкости
+        if (video && volumeFill) {
+            video.volume = 1;
+            volumeFill.style.width = '100%';
+            updateMuteButton();
+        }
+
+        // Скрытие/показ кастомных контролов
+        let controlsTimeout;
+        if (customControls) {
+            const showControls = () => {
+                customControls.style.opacity = '1';
+                clearTimeout(controlsTimeout);
+                controlsTimeout = setTimeout(() => {
+                    if (!video.paused) {
+                        customControls.style.opacity = '0';
+                    }
+                }, 3000);
+            };
+
+            const wrapper = document.querySelector('.video-wrapper');
+            if (wrapper) {
+                wrapper.addEventListener('mousemove', showControls);
+                wrapper.addEventListener('mouseleave', () => {
+                    if (!video.paused) {
+                        customControls.style.opacity = '0';
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

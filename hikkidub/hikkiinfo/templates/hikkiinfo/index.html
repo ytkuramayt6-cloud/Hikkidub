@@ -1,0 +1,377 @@
+{% extends 'hikkiinfo/base.html' %}
+
+{% block title %}Главная - HikkiDub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 20px;
+        margin-bottom: 3rem;
+        transition: background 0.3s ease;
+    }
+
+    [data-theme="dark"] .hero {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero p {
+        font-size: 1.3rem;
+        color: var(--text-secondary);
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        transition: color 0.3s ease;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-secondary {
+        background: var(--bg-card);
+        color: #667eea;
+        border: 2px solid #667eea;
+        box-shadow: 0 4px 15px var(--shadow);
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary:active {
+        transform: translateY(0);
+    }
+
+    .section {
+        margin: 3rem 0;
+    }
+
+    .section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .about-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .card {
+        background: var(--bg-card);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px var(--shadow);
+        transition: transform 0.3s, box-shadow 0.3s, background 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px var(--shadow-hover);
+    }
+
+    .card h3 {
+        color: #667eea;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .card p {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        transition: color 0.3s ease;
+    }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .project-card {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+    }
+
+    [data-theme="dark"] .project-card {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    }
+
+    .project-card:hover {
+        border-color: #667eea;
+        transform: scale(1.02);
+    }
+
+    .project-card h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .project-card .status {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        margin-top: 0.5rem;
+    }
+
+    .status.ongoing {
+        background: #4caf50;
+        color: white;
+    }
+
+    .status.completed {
+        background: #2196f3;
+        color: white;
+    }
+
+    .status.planned {
+        background: #ff9800;
+        color: white;
+    }
+
+    .contact-info {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-top: 2rem;
+        transition: background 0.3s ease;
+    }
+
+    [data-theme="dark"] .contact-info {
+        background: linear-gradient(135deg, rgba(106, 130, 238, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    }
+
+    .contact-info ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .contact-info li {
+        padding: 1rem;
+        margin: 0.5rem 0;
+        background: var(--bg-card);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: background 0.3s ease;
+    }
+
+    .contact-info li::before {
+        content: '📧';
+        font-size: 1.5rem;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1.5rem;
+        background: var(--bg-card);
+        border-radius: 15px;
+        box-shadow: 0 5px 15px var(--shadow);
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="hero">
+        <h1>Добро пожаловать в HikkiDub!</h1>
+        <p>Профессиональная команда озвучки аниме с любовью к качеству и вниманием к деталям</p>
+        {% if not user.is_authenticated %}
+        <div class="hero-buttons">
+            <a href="{% url 'register' %}" class="btn btn-primary">Зарегистрироваться</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary">Войти</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <section id="about" class="section">
+        <h2>О нас</h2>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Проектов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Эпизодов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Лет опыта</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Актеров</div>
+            </div>
+        </div>
+        <div class="about-grid">
+            <div class="card">
+                <h3>🎯 Наша миссия</h3>
+                <p>Мы стремимся создавать высококачественную озвучку аниме, которая передает эмоции и атмосферу оригинала, делая любимые сериалы доступными для русскоязычной аудитории.</p>
+            </div>
+            <div class="card">
+                <h3>⭐ Качество</h3>
+                <p>Каждый проект проходит тщательную проверку качества. Мы работаем только с профессиональными актерами и звукорежиссерами, чтобы обеспечить наилучший результат.</p>
+            </div>
+            <div class="card">
+                <h3>💝 Любовь к делу</h3>
+                <p>Аниме - это не просто работа для нас, это страсть. Мы понимаем культуру и ценности аниме-сообщества и стремимся передать это в нашей работе.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="section">
+        <h2>Наши проекты</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <h3>Легенда об Аанге: Последний маг воздуха</h3>
+                <p>Озвучка продолжения культового мультфильма об Аанге.</p>
+                <span class="status completed">Завершено</span>
+            </div>
+            <div class="project-card">
+                <h3>Призматическое рондо</h3>
+                <p>Озвучка культового аниме о Призматическом рондо.</p>
+                <span class="status completed">Завершено</span>
+            </div>
+            <div class="project-card">
+                <h3>Красноволосая принцесса Белоснежка</h3>
+                <p>Озвучка культового аниме о Красноволосой принцессе Белоснежке.</p>
+                <span class="status ongoing">В процессе</span>
+            </div>
+            <div class="project-card">
+                <h3>Чейнсо Мэн</h3>
+                <p>Готовимся к озвучке нового экшн-сериала.</p>
+                <span class="status planned">Запланировано</span>
+            </div>
+            <div class="project-card">
+                <h3>Наруто</h3>
+                <p>Масштабный проект по озвучке классического аниме.</p>
+                <span class="status ongoing">В процессе</span>
+            </div>
+            <div class="project-card">
+                <h3>Моя геройская академия</h3>
+                <p>Озвучка последних сезонов популярного супергеройского аниме.</p>
+                <span class="status planned">Запланировано</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section">
+        <h2>Свяжитесь с нами</h2>
+        <div class="contact-info">
+            <ul>
+                <li>
+                    <strong>Email:</strong> contact@hikkidub.ru
+                </li>
+                <li>
+                    <strong>Telegram:</strong> https://t.me/hikkidub
+                </li>
+                <li>
+                    <strong>VK:</strong> https://vk.com/hikkidub_voice
+                </li>
+                <li>
+                    <strong>Discord:</strong> https://discord.gg/KCDh6nX9
+                </li>
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %}
+

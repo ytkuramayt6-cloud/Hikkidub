@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HikkiDub - Команда озвучки аниме{% endblock %}</title>
+    <style>
+        :root {
+            /* Светлая тема */
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-content: rgba(255, 255, 255, 0.95);
+            --bg-header: rgba(255, 255, 255, 0.95);
+            --bg-card: white;
+            --bg-footer: rgba(0, 0, 0, 0.8);
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-footer: white;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-hover: rgba(0, 0, 0, 0.2);
+            --border-color: transparent;
+        }
+
+        [data-theme="dark"] {
+            /* Тёмная тема */
+            --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --bg-content: rgba(26, 26, 46, 0.95);
+            --bg-header: rgba(26, 26, 46, 0.95);
+            --bg-card: rgba(30, 30, 50, 0.95);
+            --bg-footer: rgba(0, 0, 0, 0.9);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-footer: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.5);
+            --border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--bg-header);
+            box-shadow: 0 2px 10px var(--shadow);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-auth {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-btn-login {
+            color: var(--text-primary);
+            border-color: #667eea;
+        }
+
+        .nav-btn-login:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn-profile {
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn-profile:hover {
+            color: #667eea;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .messages {
+            margin: 1rem auto;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 10px var(--shadow);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .message-error {
+            background: #f44336;
+            color: white;
+        }
+
+        .message-info {
+            background: #2196f3;
+            color: white;
+        }
+
+        .message-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        footer {
+            background: var(--bg-footer);
+            color: var(--text-footer);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+        }
+
+        .content {
+            background: var(--bg-content);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px var(--shadow-hover);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">🎬 HikkiDub</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'index' %}">Главная</a></li>
+                <li><a href="{% url 'index' %}#about">О нас</a></li>
+                <li><a href="{% url 'index' %}#projects">Проекты</a></li>
+                <li><a href="{% url 'index' %}#contact">Контакты</a></li>
+                {% if user.is_authenticated %}
+                <li class="nav-auth">
+                    <a href="{% url 'profile' %}" class="nav-btn nav-btn-profile">
+                        <span class="user-avatar">{{ user.username|first|upper }}</span>
+                        <span>{{ user.username }}</span>
+                    </a>
+                    <a href="{% url 'logout' %}" class="nav-btn nav-btn-login">Выйти</a>
+                </li>
+                {% else %}
+                <li class="nav-auth">
+                    <a href="{% url 'login' %}" class="nav-btn nav-btn-login">Войти</a>
+                    <a href="{% url 'register' %}" class="nav-btn nav-btn-register">Регистрация</a>
+                </li>
+                {% endif %}
+                <li>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message message-{{ message.tags }}">
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; {% now "Y" %} HikkiDub - Команда озвучки аниме</p>
+            <p>Все права защищены</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+    <script>
+        // Функция для переключения темы
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Обновляем иконку
+            const themeIcon = document.getElementById('themeIcon');
+            themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Загружаем сохранённую тему при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const html = document.documentElement;
+            html.setAttribute('data-theme', savedTheme);
+            
+            const themeIcon = document.getElementById('themeIcon');
+            themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            
+            // Добавляем обработчик клика на кнопку
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+        });
+    </script>
+</body>
+</html>
+
